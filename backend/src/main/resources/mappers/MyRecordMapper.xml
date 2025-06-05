@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.mvc.model.dao.MyRecordDao">
+	
+	<!-- 암장id, 유저id 기반 리뷰 조회 -->
+	<select id="selectAll" resultType="MyRecord">
+	SELECT * FROM my_record
+	<!-- 암장 검색 조건 -->
+	<if test="facilityId != 0 or userId != 0">
+		WHERE
+	</if>
+	<if test="facilityId != 0">
+		facility_id = #{facilityId}
+	</if>
+	<if test="facilityId != 0 and userId != 0">
+		AND
+	</if>
+	<if test="userId != 0">
+		user_id = #{userId}
+	</if>
+	</select>
+	
+	<!-- 유저id, 기간 기반 리뷰 조회 -->
+	<select id="selectByDate" resultType="MyRecord">
+	SELECT * FROM my_record
+	<!-- 암장 검색 조건 -->
+	<if test="userId != 0 or date != 0">
+		WHERE
+	</if>
+	<if test="userId != 0">
+		user_id = #{userId}
+	</if>
+	<if test="userId != 0 and date != 0">
+		AND
+	</if>
+	<if test="date != 0">
+		created >= DATE_SUB(DATE(NOW()), INTERVAL ${date-1} DAY)
+	</if>
+	</select>
+	
+	<!-- 리뷰 단일 조회 -->
+	<select id="selectOne" resultType="MyRecord">
+		SELECT * FROM my_record WHERE id = #{id}
+	</select>
+	
+	<!-- 리뷰 등록 -->
+	<insert id="insertMyRecord" parameterType="MyRecord">
+		INSERT INTO my_record (user_id, facility_id, title, writer, content, record, rating, created)
+		VALUES (#{userId}, #{facilityId}, #{title}, #{writer}, #{content}, #{record}, #{rating},
+		#{created})
+	</insert>
+	
+	<!-- 리뷰 수정 -->
+	<update id="updateMyRecord">
+		UPDATE my_record
+		SET title = #{title}, content = #{content}, record = #{record}, rating = #{rating}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 리뷰 삭제 -->
+	<delete id="deleteMyRecord" parameterType="int">
+		DELETE FROM my_record
+		WHERE id = #{id}
+	</delete>
+</mapper>

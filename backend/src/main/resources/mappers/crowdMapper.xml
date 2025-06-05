@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.mvc.model.dao.CrowdDao">
+	<!-- 1시간 이내 혼잡도 평가 조회 -->
+	<select id="getCrowdList"
+		resultType="com.ssafy.mvc.model.dto.Crowd">
+		SELECT
+		id,
+		rating,
+		manager,
+		created,
+		facility_id AS facilityId,
+		user_id AS userId
+		FROM crowd
+		WHERE created > DATE_ADD(NOW(), INTERVAL -1 HOUR)
+		ORDER BY facility_id
+	</select>
+	
+	<!-- 혼잡도 기록 -->
+	<insert id="insertCrowd" parameterType="Crowd">
+		INSERT INTO crowd (rating, manager, facility_id, user_id)
+		VALUES (#{rating}, #{manager}, #{facilityId}, #{userId})
+	</insert>
+</mapper>

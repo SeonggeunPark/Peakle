@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.mvc.model.dao.BoardReviewDao">
+
+	<!-- 전체 게시글 조회 및 검색기능 -->
+	<select id="selectAll" resultType="BoardReview">
+		SELECT * FROM board_review
+		<!-- 검색 조건 -->
+		<!-- 암장 검색 조건 -->
+		<if test="boardId != 0 or userId != 0">
+			WHERE
+		</if>
+		<if test="boardId != 0">
+			board_id = #{boardId}
+		</if>
+		<if test="boardId != 0 and userId != 0">
+			AND
+		</if>
+		<if test="userId != 0">
+			user_id = #{userId}
+		</if>
+	</select>
+	
+	<!-- 상세 게시글 조회 -->
+	<select id="selectOne" resultType="BoardReview" parameterType="int">
+		SELECT * FROM board_review
+		WHERE id = #{id};
+	</select>
+	
+	<!-- 게시글 등록 -->
+	<insert id="insertReview" parameterType="BoardReview">
+		INSERT INTO board_review (user_id, board_id, writer, content)
+		VALUES (#{userId}, #{boardId}, #{writer}, #{content});
+	</insert>
+	
+	<!-- 게시글 삭제 -->
+	<delete id="deleteReview" parameterType="int">
+		DELETE FROM board_review
+		WHERE id = #{id};
+	</delete>
+	
+	<!-- 게시글 수정 -->
+	<update id="updateReview" parameterType="BoardReview">
+		UPDATE board_review
+		SET content = #{content}
+		WHERE id = #{id};
+	</update>
+</mapper>

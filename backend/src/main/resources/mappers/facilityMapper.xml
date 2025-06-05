@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.mvc.model.dao.FacilityDao">
+	<!--전체 조회-->
+	<select id="selectAll" resultType="Facility">
+		SELECT * FROM facility;
+	</select>
+	
+	<!--암장 상세조회-->
+	<select id="selectOne" resultType="Facility" parameterType="int">
+		SELECT * 
+		FROM facility 
+		WHERE id = #{id};
+	</select>
+	
+	<!--암장 1개 상세보기 -->
+	<select id="selectOneDetail" resultType="FacilityFeature" parameterType="int">
+		SELECT * 
+		FROM facility_feature
+		WHERE facility_id = #{id};
+	</select>
+
+	<!--암장 수정-->
+	<update id="updateFacility" parameterType="Facility">
+		UPDATE facility
+		SET name = #{name}, address = #{address}, phone_number = #{phoneNumber}, is_closed = #{isClosed}, updated = now()
+		WHERE id = #{id};
+	</update>
+	
+		<!-- 암장 삭제 -->
+	<delete id="deleteFacility" parameterType="int">
+		DELETE FROM facility
+		WHERE id = #{id};
+	</delete>
+
+	<!--암장 등록-->
+	<insert id="insertFacility" parameterType="Facility">
+		INSERT INTO facility (`name`, `lat`, `lng`, `address`, `phone_number`, `is_closed`, `user_id`)
+		VALUES (#{name}, #{lat}, #{lng}, #{address}, #{phoneNumber}, #{isClosed}, #{userId});
+	</insert>
+	
+	<!-- 암장 검색 -->
+	<select id="searchByKeyword" parameterType="String" resultType="Facility">
+		SELECT id, name
+		FROM facility
+		WHERE name LIKE CONCAT('%', #{keyword}, '%');
+	</select>
+	
+	
+	
+</mapper>
