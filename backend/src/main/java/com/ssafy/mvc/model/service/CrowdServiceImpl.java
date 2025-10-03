@@ -1,30 +1,39 @@
 package com.ssafy.mvc.model.service;
 
+import com.ssafy.mvc.model.dao.CrowdDao;
+import com.ssafy.mvc.model.dto.Crowd;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.ssafy.mvc.model.dao.CrowdDao;
-import com.ssafy.mvc.model.dto.Crowd;
-import com.ssafy.mvc.model.dto.SearchCondition;
 
 @Service
 public class CrowdServiceImpl implements CrowdService{
 
 	@Autowired
-	CrowdDao crowdDao; 
-	
+	CrowdDao crowdDao;
+    // 1시간마다 혼잡도 계산 메서드
+    private volatile Map<Integer, Double> crowdMap = new HashMap<>(); // ← volatile
+
+    @Scheduled(fixedRate = 1000 * 60 * 3) // fixedRate 권장(드리프트 줄이기)
+    public void updateCrowdList() {
+        crowdMap = Map.copyOf(getCrowds());  // 새 Map으로 통째 교체(변경 X, 교체 O)
+    }
+    // 컨트롤러에서 캐시 읽도록 제공
+    public Map<Integer, Double> getCrowdSnapshot() {
+        return crowdMap;
+    }
+
 	// 1시간 이내 혼잡도 수치 계산
 	@Override
 	public Map<Integer, Double> getCrowds() {
-		
+
 		List<Crowd> list = crowdDao.getCrowdList();
 		Map<Integer, Double> map = new HashMap<>();
 		
-//		int preFacilId = 0;
 		for (int i=0; i<list.size(); i++) {
 			int idx = i;
 			int facilId = list.get(i).getFacilityId();
@@ -50,7 +59,7 @@ public class CrowdServiceImpl implements CrowdService{
 			}
 			double tmp = 0;
 			if (cntNormal == 0 && cntManager > 0) {
-				tmp = sumManager;
+				tmp = (double) sumManager /cntManager;
 			} else if (cntManager == 0 && cntNormal > 0) {
 				tmp = (double)sumNormal/cntNormal;
 			} else {

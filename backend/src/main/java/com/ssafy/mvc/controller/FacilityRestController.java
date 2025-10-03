@@ -1,34 +1,21 @@
 package com.ssafy.mvc.controller;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ssafy.mvc.model.dto.Crowd;
 import com.ssafy.mvc.model.dto.Facility;
 import com.ssafy.mvc.model.dto.FacilityDetail;
-import com.ssafy.mvc.model.dto.Review;
 import com.ssafy.mvc.model.service.CrowdService;
 import com.ssafy.mvc.model.service.FacilityService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/facility")
-@CrossOrigin("http://localhost:5173")
+//@CrossOrigin("http://localhost:5173")
 public class FacilityRestController {
 	// 의존성 주입
 	@Autowired
@@ -102,24 +89,24 @@ public class FacilityRestController {
 		return new ResponseEntity<List<Facility>>(list, HttpStatus.OK);
 	}
 
-	// 1시간마다 혼잡도 계산 메서드
-	Map<Integer, Double> crowdMap = new HashMap<>(); // 혼잡도 데이터(1시간마다 갱신)
-
-	// 혼잡도 계산 & 갱신 (5분마다)
-	@Scheduled(fixedDelay = 1000*60*3)
-	public void updateCrowdList() {
-		crowdMap = crowdService.getCrowds();
-	}
-
-	// 혼잡도 반환
+	// 혼잡도 반환 (캐싱)
 	@GetMapping("/crowd")
 	public ResponseEntity<?> getCrowdList() {
-		return new ResponseEntity<>(crowdMap, HttpStatus.OK);
+
+        Map<Integer, Double> crowdMap = crowdService.getCrowdSnapshot();
+        return new ResponseEntity<>(crowdMap, HttpStatus.OK);
 	}
-	
+
+    // 혼잡도 반환 (테스트용)
+	@GetMapping("/crowd-calc")
+	public ResponseEntity<?> getCrowdListNow() {
+        Map<Integer, Double> nowCrowdMap = crowdService.getCrowds();
+		return new ResponseEntity<>(nowCrowdMap, HttpStatus.OK);
+	}
+
 	// 혼잡도 등록
 	@PostMapping("/crowd")
-	public ResponseEntity<?> writeCroewd(@RequestBody Crowd crowd) {
+	public ResponseEntity<?> writeCrowd(@RequestBody Crowd crowd) {
 		if (crowdService.writeCrowd(crowd)) {
 			return ResponseEntity.status(HttpStatus.CREATED).body("Crowd added successfully");
 		}

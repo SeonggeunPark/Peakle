@@ -11,4 +11,5 @@ public interface CrowdService {
 
 	public boolean writeCrowd(Crowd crowd);
 
+    Map<Integer, Double> getCrowdSnapshot();
 }
